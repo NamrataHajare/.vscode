@@ -1,0 +1,430 @@
+<div class="min-h-screen bg-gray-100">
+    <!-- Enhanced Navigation -->
+    <nav class="flex items-center justify-between bg-gradient-to-r from-indigo-500 to-indigo-600 p-4 rounded-2xl mx-4 mt-4 shadow-lg">
+        <div class="flex items-center space-x-4">
+            <img src="assets/logo.png" alt="Logo" class="rounded-full w-12 h-12 object-cover border-2 border-white shadow">
+            <div>
+                <h1 class="text-white text-xl font-bold">Faculty MIS System</h1>
+                <p class="text-indigo-200 text-xs">Welcome back!</p>
+            </div>
+        </div>
+
+        <div class="relative inline-block text-left">
+            <button (click)="toggleMenu()"
+                class="flex items-center space-x-2 bg-indigo-400 hover:bg-indigo-300 text-white px-4 py-2 rounded-full focus:outline-none transition-all duration-200">
+                <img src="assets/profile.png" alt="Profile" class="rounded-full w-8 h-8 object-cover">
+                <span class="text-sm">Menu</span>
+            </button>
+
+            <div [class.hidden]="!menuOpen"
+                class="origin-top-right absolute right-0 mt-2 w-48 rounded-xl shadow-xl bg-white ring-1 ring-black ring-opacity-5 py-2 z-50">
+                <div class="px-4 py-2 border-b border-gray-100">
+                    <p class="text-sm font-medium text-gray-900">Faculty</p>
+                    <p class="text-xs text-gray-500">Dashboard</p>
+                </div>
+                <button (click)="switchTab('profile')"
+                    class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors">
+                    👤 Profile
+                </button>
+                <button (click)="switchTab('course')"
+                    class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors">
+                    📚 Courses
+                </button>
+                <button (click)="switchTab('settings')"
+                    class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors">
+                    ⚙️ Settings
+                </button>
+                <div class="border-t border-gray-100 mt-1"></div>
+                <button (click)="logout()" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                    🚪 Logout
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto mt-8 px-4">
+        <!-- Enhanced Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <button (click)="loadCourse()" class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-5 shadow-lg text-white hover:from-blue-600 hover:to-blue-700 transition-all duration-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-blue-100 text-sm">Courses</p>
+                        <p class="text-3xl font-bold">{{ courses?.length || 0 }}</p>
+                    </div>
+                    <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-2xl">📚</div>
+                </div>
+            </button>
+            <button (click)="loadSchedule()" class="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-5 shadow-lg text-white hover:from-green-600 hover:to-green-700 transition-all duration-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-green-100 text-sm">Schedule</p>
+                        <p class="text-3xl font-bold">{{ timetable?.length || 0 }}</p>
+                    </div>
+                    <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-2xl">📅</div>
+                </div>
+            </button>
+            <button (click)="loadAbout()" class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-5 shadow-lg text-white hover:from-purple-600 hover:to-purple-700 transition-all duration-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-purple-100 text-sm">About</p>
+                        <p class="text-lg font-bold">Info</p>
+                    </div>
+                    <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-2xl">ℹ️</div>
+                </div>
+            </button>
+            <button (click)="loadDepartment()" class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl p-5 shadow-lg text-white hover:from-orange-600 hover:to-orange-700 transition-all duration-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-orange-100 text-sm">Department</p>
+                        <p class="text-lg font-bold">Insights</p>
+                    </div>
+                    <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-2xl">📊</div>
+                </div>
+            </button>
+        </div>
+    </div>
+    <div class="bg-green-400/20 text-gray-700 p-6 px-2 py-4 rounded-2xl shadow justify-center m-6">
+        <div *ngIf="activeTab === 'courses'" class="space-y-4">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <button *ngFor="let course of courses" (click)="selectCourse(course)"
+                    class="p-4 rounded-2xl bg-yellow-200/30 hover:bg-yellow-200/50 text-black font-semibold shadow">
+                    {{ course.title }}
+                </button>
+            </div>
+
+            <div *ngIf="selectedCourse" class="mt-6 bg-white/80 p-6 rounded shadow">
+                <h3 class="text-xl font-bold mb-4">Sections for {{ selectedCourse.title }}</h3>
+
+                <div *ngFor="let section of selectedCourse.sections" class="mb-4 border rounded p-4">
+                    <h4 class="font-semibold mb-2">Section {{ section.section_id }}</h4>
+                    <p class="text-sm mb-2">
+                        Time: {{ section.time_slot }} | Classroom: {{ section.classroom }}
+                    </p>
+
+                    <table class="table-auto w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-200">
+                                <th class="px-2 py-1 border">Student ID</th>
+                                <th class="px-2 py-1 border">Name</th>
+                                <th class="px-2 py-1 border">Grade</th>
+                                <th class="px-2 py-1 border">Assign</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let student of section.students" class="hover:bg-gray-100">
+                                <td class="px-2 py-1 border">{{ student.student_id }}</td>
+                                <td class="px-2 py-1 border">{{ student.name }}</td>
+                                <td class="px-2 py-1 border">{{ student.grade || '-' }}</td>
+                                <td class="px-2 py-1 border">
+                                    <select [(ngModel)]="student.grade"
+                                        (ngModelChange)="assignGrade(student, section, $event)"
+                                        class="border rounded px-2 py-1">
+                                        <option value="">Select</option>
+                                        <option value="A">A</option>
+                                        <option value="B">B</option>
+                                        <option value="C">C</option>
+                                        <option value="D">D</option>
+                                        <option value="F">F</option>
+                                    </select>
+                                </td>
+
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div *ngIf="activeTab === 'schedule'">
+            <div *ngIf="timetable?.length" class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div class="bg-gradient-to-r from-green-400 to-green-500 p-4">
+                    <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                        <span>📅</span> Timetable
+                    </h2>
+                </div>
+                <div class="p-4">
+                    <div class="overflow-hidden rounded-xl border border-gray-200">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase">Course</th>
+                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase">Day</th>
+                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase">Start</th>
+                                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase">End</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr *ngFor="let item of timetable; let i = index" 
+                                    class="hover:bg-green-50 transition-colors"
+                                    [class.bg-gray-50]="i % 2 === 0">
+                                    <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ item.course_title }}</td>
+                                    <td class="px-4 py-3 text-sm text-gray-600">
+                                        <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">{{ item.day }}</span>
+                                    </td>
+                                    <td class="px-4 py-3 text-sm text-gray-600">{{ item.start_time }}</td>
+                                    <td class="px-4 py-3 text-sm text-gray-600">{{ item.end_time }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Empty State -->
+            <div *ngIf="!timetable?.length" class="col-span-1 md:col-span-2 bg-white rounded-2xl shadow-lg p-12 text-center">
+                <div class="text-6xl mb-4">📅</div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">No Schedule Available</h3>
+                <p class="text-gray-500">Your timetable will appear here.</p>
+            </div>
+        </div>
+
+        <!-- Enhanced Department Insights Section -->
+        <div *ngIf="activeTab === 'department'" class="animate-fadeIn">
+            <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-2xl font-bold text-gray-800">
+                        Department Insights
+                    </h3>
+                    <span class="text-sm text-gray-500">Faculty Dashboard</span>
+                </div>
+
+                <!-- Navigation Tabs -->
+                <div class="flex flex-wrap gap-3 mb-6">
+                    <button (click)="showSection('students')" 
+                        [class.bg-indigo-600]="activeSection === 'students'"
+                        [class.bg-gray-200]="activeSection !== 'students'"
+                        class="px-5 py-2.5 rounded-lg font-medium transition-all duration-200"
+                        [class.text-white]="activeSection === 'students'"
+                        [class.text-gray-700]="activeSection !== 'students'">
+                        Students
+                    </button>
+
+                    <button (click)="showSection('faculty')" 
+                        [class.bg-indigo-600]="activeSection === 'faculty'"
+                        [class.bg-gray-200]="activeSection !== 'faculty'"
+                        class="px-5 py-2.5 rounded-lg font-medium transition-all duration-200"
+                        [class.text-white]="activeSection === 'faculty'"
+                        [class.text-gray-700]="activeSection !== 'faculty'">
+                        Faculty
+                    </button>
+
+                    <button (click)="showSection('result')" 
+                        [class.bg-indigo-600]="activeSection === 'result'"
+                        [class.bg-gray-200]="activeSection !== 'result'"
+                        class="px-5 py-2.5 rounded-lg font-medium transition-all duration-200"
+                        [class.text-white]="activeSection === 'result'"
+                        [class.text-gray-700]="activeSection !== 'result'">
+                        Results
+                    </button>
+                </div>
+
+                <!-- Students Section -->
+                <div *ngIf="activeSection === 'students'" class="animate-fadeIn">
+                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 mb-4">
+                        <h4 class="text-lg font-semibold text-gray-800">Student Directory</h4>
+                        <p class="text-sm text-gray-600">Total Students: {{ students?.length || 0 }}</p>
+                    </div>
+                    
+                    <div class="overflow-hidden rounded-xl border border-gray-200">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">ID</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Name</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Credits</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr *ngFor="let s of students; let i = index" 
+                                    class="hover:bg-blue-50 transition-colors duration-150"
+                                    [class.bg-gray-50]="i % 2 === 0">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ s.id }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ s.name }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">{{ s.tot_cred }} Credits</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Active</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div *ngIf="!students?.length" class="text-center py-8 text-gray-500">
+                        <p class="mt-2">No students found</p>
+                    </div>
+                </div>
+
+                <!-- Faculty Section -->
+                <div *ngIf="activeSection === 'faculty'" class="animate-fadeIn">
+                    <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 mb-4">
+                        <h4 class="text-lg font-semibold text-gray-800">Faculty Members</h4>
+                        <p class="text-sm text-gray-600">Total Faculty: {{ faculty?.length || 0 }}</p>
+                    </div>
+                    
+                    <div class="overflow-hidden rounded-xl border border-gray-200">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">ID</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Name</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Salary</th>
+                                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr *ngFor="let f of faculty; let i = index" 
+                                    class="hover:bg-green-50 transition-colors duration-150"
+                                    [class.bg-gray-50]="i % 2 === 0">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ f.id }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ f.name }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">${{ f.salary }}</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Active</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div *ngIf="!faculty?.length" class="text-center py-8 text-gray-500">
+                        <p class="mt-2">No faculty found</p>
+                    </div>
+                </div>
+
+                <!-- Results Section -->
+                <div *ngIf="activeSection === 'result'" class="animate-fadeIn">
+                    <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6 mb-6">
+                        <h4 class="text-xl font-bold text-gray-800 mb-4">Performance Analytics</h4>
+                        
+                        <!-- Stats Cards -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                            <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+                                <p class="text-sm text-gray-500 mb-1">Pass Rate</p>
+                                <p class="text-2xl font-bold text-green-600">{{ result?.pass_percentage || 0 }}%</p>
+                            </div>
+                            <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+                                <p class="text-sm text-gray-500 mb-1">Fail Rate</p>
+                                <p class="text-2xl font-bold text-red-500">{{ 100 - (result?.pass_percentage || 0) }}%</p>
+                            </div>
+                            <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+                                <p class="text-sm text-gray-500 mb-1">Total Students</p>
+                                <p class="text-2xl font-bold text-indigo-600">{{ students?.length || 0 }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <div class="mb-4">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-sm font-medium text-gray-700">Overall Pass Percentage</span>
+                                <span class="text-sm font-bold text-green-600">{{ result?.pass_percentage || 0 }}%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+                                <div class="h-full bg-gradient-to-r from-green-400 to-green-600 rounded-full transition-all duration-1000 ease-out"
+                                    [style.width.%]="result?.pass_percentage || 0">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Enhanced About Section -->
+        <div *ngIf="activeTab === 'about'">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- About Card -->
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                    <div class="bg-gradient-to-r from-blue-400 to-blue-500 p-4">
+                        <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                            <span>🏛️</span> About the System
+                        </h3>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-gray-700 leading-relaxed">
+                            This University Management System is a web-based academic platform developed to
+                            streamline and digitize university operations. It centralizes academic data and ensures
+                            efficient coordination between students, faculty, and departments.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Purpose Card -->
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                    <div class="bg-gradient-to-r from-purple-400 to-purple-500 p-4">
+                        <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                            <span>🎯</span> Purpose of the Platform
+                        </h3>
+                    </div>
+                    <div class="p-6">
+                        <ul class="space-y-3">
+                            <li class="flex items-start gap-2">
+                                <span class="text-green-500 mt-1">✓</span>
+                                <span class="text-gray-700">Provide a structured system for managing academic records</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-green-500 mt-1">✓</span>
+                                <span class="text-gray-700">Simplify student enrollment and course management</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-green-500 mt-1">✓</span>
+                                <span class="text-gray-700">Enable faculty to manage sections and assign grades</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-green-500 mt-1">✓</span>
+                                <span class="text-gray-700">Maintain accurate and consistent academic data</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-green-500 mt-1">✓</span>
+                                <span class="text-gray-700">Generate departmental insights for performance analysis</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="text-green-500 mt-1">✓</span>
+                                <span class="text-gray-700">Ensure data integrity through database constraints</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Goals Card -->
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                    <div class="bg-gradient-to-r from-green-400 to-green-500 p-4">
+                        <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                            <span>📈</span> Key Goals
+                        </h3>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-gray-700 leading-relaxed">
+                            The system aims to reduce manual record-keeping, eliminate redundancy, and provide a transparent
+                            academic management process. It facilitates seamless communication between all stakeholders
+                            in the educational ecosystem.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Logo Card -->
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                    <div class="bg-gradient-to-r from-indigo-400 to-indigo-500 p-4">
+                        <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                            <span>🎓</span> University Brand
+                        </h3>
+                    </div>
+                    <div class="p-6 flex flex-col items-center justify-center">
+                        <img src="assets/logo.png" class="bg-white rounded-full shadow-xl w-32 h-32 object-cover mb-4">
+                        <p class="text-gray-600 text-center font-medium">University Management Information System</p>
+                        <p class="text-gray-400 text-sm">Empowering Education Through Technology</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

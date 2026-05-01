@@ -1,0 +1,273 @@
+<div class="min-h-screen bg-gray-100">
+  <!-- Enhanced Navigation -->
+  <nav class="flex items-center justify-between bg-gradient-to-r from-red-500 to-red-600 p-4 rounded-2xl mx-4 mt-4 shadow-lg">
+    <div class="flex items-center space-x-4">
+      <img src="assets/logo.png" alt="Logo" class="rounded-full w-12 h-12 object-cover border-2 border-white shadow">
+      <div>
+        <h1 class="text-white text-xl font-bold">Admin MIS System</h1>
+        <p class="text-red-200 text-xs">Management Portal</p>
+      </div>
+    </div>
+
+    <div class="relative inline-block text-left">
+      <button (click)="toggleMenu()"
+        class="flex items-center space-x-2 bg-red-400 hover:bg-red-300 text-white px-4 py-2 rounded-full focus:outline-none transition-all duration-200">
+        <img src="assets/profile.png" alt="Profile" class="rounded-full w-8 h-8 object-cover">
+        <span class="text-sm">Menu</span>
+      </button>
+      <div [class.hidden]="!menuOpen"
+        class="origin-top-right absolute right-0 mt-2 w-48 rounded-xl shadow-xl bg-white py-2 z-50">
+        <div class="px-4 py-2 border-b border-gray-100">
+          <p class="text-sm font-medium text-gray-900">Administrator</p>
+          <p class="text-xs text-gray-500">Admin Panel</p>
+        </div>
+        <button (click)="switchTab('profile')"
+          class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors">
+          👤 Profile
+        </button>
+        <button (click)="switchTab('course')"
+          class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors">
+          📚 Courses
+        </button>
+        <button (click)="switchTab('settings')"
+          class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors">
+          ⚙️ Settings
+        </button>
+        <div class="border-t border-gray-100 mt-1"></div>
+        <button (click)="logout()" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
+          🚪 Logout
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Stats Cards -->
+  <div class="container mx-auto mt-6 px-4">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <button (click)="setSection('addCourse')" 
+        [class.bg-indigo-600]="activeSection === 'addCourse'"
+        [class.bg-white]="activeSection !== 'addCourse'"
+        class="rounded-2xl p-4 shadow-lg hover:shadow-xl transition-all duration-200 text-center">
+        <div class="text-3xl mb-2">📚</div>
+        <p [class.text-white]="activeSection === 'addCourse'" [class.text-gray-800]="activeSection !== 'addCourse'" class="font-bold">Add Course</p>
+      </button>
+      <button (click)="setSection('assign')" 
+        [class.bg-indigo-600]="activeSection === 'assign'"
+        [class.bg-white]="activeSection !== 'assign'"
+        class="rounded-2xl p-4 shadow-lg hover:shadow-xl transition-all duration-200 text-center">
+        <div class="text-3xl mb-2">👨‍🏫</div>
+        <p [class.text-white]="activeSection === 'assign'" [class.text-gray-800]="activeSection !== 'assign'" class="font-bold">Assign Faculty</p>
+      </button>
+      <button (click)="setSection('view')" 
+        [class.bg-indigo-600]="activeSection === 'view'"
+        [class.bg-white]="activeSection !== 'view'"
+        class="rounded-2xl p-4 shadow-lg hover:shadow-xl transition-all duration-200 text-center">
+        <div class="text-3xl mb-2">📊</div>
+        <p [class.text-white]="activeSection === 'view'" [class.text-gray-800]="activeSection !== 'view'" class="font-bold">View Lists</p>
+      </button>
+    </div>
+  </div>
+
+  <!-- Add Course Section -->
+  <div *ngIf="activeSection === 'addCourse'" class="container mx-auto px-4">
+    <div class="bg-white rounded-2xl shadow-lg p-6">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center text-xl">📚</div>
+        <h3 class="text-xl font-bold text-gray-800">Add New Course</h3>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <input [(ngModel)]="course.course_id" placeholder="Course ID" 
+          class="border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+        <input [(ngModel)]="course.title" placeholder="Course Title" 
+          class="border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+        <input [(ngModel)]="course.dept_name" placeholder="Department" 
+          class="border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+        <input [(ngModel)]="course.credits" type="number" placeholder="Credits" 
+          class="border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+        <button (click)="addCourse()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg shadow hover:shadow-lg transition-all font-medium">
+          ➕ Add Course
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Assign Faculty Section -->
+  <div *ngIf="activeSection === 'assign'" class="container mx-auto px-4 mt-4">
+    <div class="bg-white rounded-2xl shadow-lg p-6">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center text-xl">👨‍🏫</div>
+        <h3 class="text-xl font-bold text-gray-800">Assign Faculty to Course</h3>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div>
+          <label class="block text-sm font-medium text-gray-600 mb-2">
+            🏢 Department
+          </label>
+          <input type="text" [(ngModel)]="assign.dept_name" (change)="onDepartmentChange()" placeholder="Enter Department"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none transition">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-600 mb-2">
+            👨‍🏫 Faculty
+          </label>
+          <select [(ngModel)]="assign.faculty_id" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none transition">
+            <option value="">Select Faculty</option>
+            <option *ngFor="let f of facultyList" [value]="f.id">
+              {{ f.name }}
+            </option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-600 mb-2">
+            📚 Course
+          </label>
+          <select [(ngModel)]="assign.course_id" (change)="onCourseChange()"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none transition">
+            <option value="">Select Course</option>
+            <option *ngFor="let c of courses" [value]="c.course_id">
+              {{ c.title }}
+            </option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-600 mb-2">
+            📅 Section
+          </label>
+          <select [(ngModel)]="assign.section_id" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none transition">
+            <option value="">Select Section</option>
+            <option *ngFor="let s of sections" [value]="s.section_id">
+              Section {{ s.sec_id }} - {{ s.course_id }}
+            </option>
+          </select>
+        </div>
+      </div>
+      <div class="mt-6">
+        <button (click)="assignFaculty()" class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 font-medium flex items-center gap-2">
+          <span>✅</span> Assign Faculty
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- View Lists Section -->
+  <div *ngIf="activeSection === 'view'" class="container mx-auto px-4 mt-4">
+    <div class="bg-gray-50 rounded-2xl shadow-lg p-6">
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center text-xl">📊</div>
+          <h3 class="text-xl font-bold text-gray-800">University Data Overview</h3>
+        </div>
+        <button (click)="loadLists()" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 font-medium flex items-center gap-2">
+          <span>🔄</span> Load Data
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Students Card -->
+        <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+          <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-4">
+            <h4 class="text-lg font-bold text-white flex items-center gap-2">
+              <span>👨‍🎓</span> Students
+            </h4>
+          </div>
+          <div class="p-4 max-h-96 overflow-y-auto">
+            <div *ngFor="let dept of students" class="mb-6">
+              <h5 class="text-md font-bold text-blue-600 mb-3 bg-blue-50 px-3 py-2 rounded-lg">
+                {{ dept.dept_name }}
+              </h5>
+              <div class="overflow-hidden rounded-xl border border-gray-200">
+                <table class="w-full text-sm">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th class="px-3 py-2 text-left text-xs font-bold text-gray-600">ID</th>
+                      <th class="px-3 py-2 text-left text-xs font-bold text-gray-600">Name</th>
+                      <th class="px-3 py-2 text-left text-xs font-bold text-gray-600">Credits</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let s of dept.students" class="border-t hover:bg-blue-50 transition">
+                      <td class="px-3 py-2">{{ s.id }}</td>
+                      <td class="px-3 py-2">{{ s.name }}</td>
+                      <td class="px-3 py-2">
+                        <span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs">{{ s.tot_cred }}</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Faculty Card -->
+        <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+          <div class="bg-gradient-to-r from-green-500 to-green-600 p-4">
+            <h4 class="text-lg font-bold text-white flex items-center gap-2">
+              <span>👨‍🏫</span> Faculty
+            </h4>
+          </div>
+          <div class="p-4 max-h-96 overflow-y-auto">
+            <div *ngFor="let dept of faculty" class="mb-6">
+              <h5 class="text-md font-bold text-green-600 mb-3 bg-green-50 px-3 py-2 rounded-lg">
+                {{ dept.dept_name }}
+              </h5>
+              <div class="overflow-hidden rounded-xl border border-gray-200">
+                <table class="w-full text-sm">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th class="px-3 py-2 text-left text-xs font-bold text-gray-600">ID</th>
+                      <th class="px-3 py-2 text-left text-xs font-bold text-gray-600">Name</th>
+                      <th class="px-3 py-2 text-left text-xs font-bold text-gray-600">Salary</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let f of dept.faculty" class="border-t hover:bg-green-50 transition">
+                      <td class="px-3 py-2">{{ f.id }}</td>
+                      <td class="px-3 py-2">{{ f.name }}</td>
+                      <td class="px-3 py-2">
+                        <span class="px-2 py-1 bg-emerald-100 text-emerald-700 rounded text-xs">${{ f.salary }}</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Courses Card -->
+        <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+          <div class="bg-gradient-to-r from-purple-500 to-purple-600 p-4">
+            <h4 class="text-lg font-bold text-white flex items-center gap-2">
+              <span>📚</span> Courses
+            </h4>
+          </div>
+          <div class="p-4 max-h-96 overflow-y-auto">
+            <div *ngFor="let dept of courses" class="mb-6">
+              <h5 class="text-md font-bold text-purple-600 mb-3 bg-purple-50 px-3 py-2 rounded-lg">
+                {{ dept.dept_name }}
+              </h5>
+              <div class="overflow-hidden rounded-xl border border-gray-200">
+                <table class="w-full text-sm">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th class="px-3 py-2 text-left text-xs font-bold text-gray-600">Course ID</th>
+                      <th class="px-3 py-2 text-left text-xs font-bold text-gray-600">Title</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let c of dept.courses" class="border-t hover:bg-purple-50 transition">
+                      <td class="px-3 py-2">{{ c.course_id }}</td>
+                      <td class="px-3 py-2">{{ c.title }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

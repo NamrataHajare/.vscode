@@ -1,0 +1,95 @@
+<div class="min-h-screen bg-gray-100 p-6">
+  <div class="max-w-6xl mx-auto">
+    <h2 class="text-3xl font-bold mb-8 text-center text-gray-800">Course Enrollment</h2>
+
+    <!-- Available Courses Section -->
+    <div *ngIf="courses" class="bg-white rounded-2xl shadow-lg p-6 mb-8">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-xl font-semibold text-gray-800">Available Courses</h3>
+        <span class="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">{{ courses.length }} Courses</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div *ngFor="let course of courses"
+             class="border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-xl transition-all duration-300 bg-gradient-to-b from-white to-gray-50 hover:from-indigo-50 hover:to-white">
+          
+          <div class="flex items-start justify-between mb-3">
+            <div class="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-lg text-sm font-semibold">
+              {{ course.course_id }}
+            </div>
+            <div class="text-yellow-500 text-sm font-medium">
+              ★ {{ course.credits }} Credits
+            </div>
+          </div>
+
+          <h4 class="text-lg font-bold text-gray-800 mb-2 hover:text-indigo-600 transition-colors">
+            {{ course.title }}
+          </h4>
+
+          <p class="text-sm text-gray-500 mb-4 flex items-center gap-1">
+            <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+            Available for enrollment
+          </p>
+
+          <button
+            (click)="enroll(course.course_id)"
+            class="mt-auto w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]">
+            <span>📚</span> Enroll Now
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Enrolled Courses Section -->
+    <div class="bg-white rounded-2xl shadow-lg p-6">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-xl font-semibold text-gray-800">My Enrolled Courses</h3>
+        <span *ngIf="enrolledCourses.length > 0" class="text-sm text-gray-500 bg-green-100 px-3 py-1 rounded-full text-green-700">
+          {{ enrolledCourses.length }} Enrolled
+        </span>
+      </div>
+
+      <div *ngIf="enrolledCourses.length > 0; else noCourses">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div *ngFor="let course of enrolledCourses"
+               class="border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-all duration-200 bg-gradient-to-r from-green-50 to-white hover:from-green-100">
+            
+            <div class="flex items-start justify-between mb-3">
+              <div class="bg-green-100 text-green-700 px-3 py-1 rounded-lg text-sm font-semibold">
+                {{ course.course_id }}
+              </div>
+              <span *ngIf="course.grade" 
+                    class="px-3 py-1 rounded-lg text-sm font-bold"
+                    [class.bg-green-500]="course.grade === 'A' || course.grade === 'B'"
+                    [class.bg-yellow-500]="course.grade === 'C' || course.grade === 'D'"
+                    [class.bg-red-500]="course.grade === 'F'"
+                    [class.text-white]="true">
+                Grade: {{ course.grade }}
+              </span>
+            </div>
+
+            <h4 class="font-bold text-gray-800 mb-2">{{ course.title }}</h4>
+            
+            <div class="flex items-center gap-2 mt-3">
+              <span class="text-sm text-gray-600">Status:</span>
+              <span *ngIf="course.grade" class="text-sm font-medium text-green-600 flex items-center gap-1">
+                <span class="w-2 h-2 bg-green-500 rounded-full"></span> Graded
+              </span>
+              <span *ngIf="!course.grade" class="text-sm font-medium text-yellow-600 flex items-center gap-1">
+                <span class="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span> Pending
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <ng-template #noCourses>
+        <div class="text-center py-12">
+          <div class="text-6xl mb-4">📖</div>
+          <p class="text-gray-500 text-lg">No courses enrolled yet.</p>
+          <p class="text-gray-400 text-sm mt-2">Browse available courses above to get started!</p>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+</div>
