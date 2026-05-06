@@ -1,0 +1,227 @@
+🔹 STEP 1: Locate PostgreSQL installation
+
+Usually:
+
+C:\Program Files\PostgreSQL\16\
+
+Inside you will see:
+
+bin
+data
+
+We will NOT reuse same data folder.
+
+🔹 STEP 2: Create 3 data directories
+
+Create these folders:
+
+C:\pgsql\node1\data
+C:\pgsql\node2\data
+C:\pgsql\node3\data
+🔹 STEP 3: Initialize 3 separate databases
+
+Open Command Prompt as Administrator
+
+Go to PostgreSQL bin folder:
+
+cd "C:\Program Files\PostgreSQL\16\bin"
+🟢 Initialize NODE 1
+initdb -D "C:\pgsql\node1\data"
+🟢 Initialize NODE 2
+initdb -D "C:\pgsql\node2\data"
+🟢 Initialize NODE 3
+initdb -D "C:\pgsql\node3\data"
+🔹 STEP 4: Change ports for each node
+
+Now we edit:
+
+postgresql.conf
+🟢 NODE 1
+
+Open:
+
+C:\pgsql\node1\data\postgresql.conf
+
+Change:
+
+port = 5440
+🟢 NODE 2
+C:\pgsql\node2\data\postgresql.conf
+
+Change:
+
+port = 5433
+🟢 NODE 3
+C:\pgsql\node3\data\postgresql.conf
+
+Change:
+
+port = 5441
+🔹 STEP 5: Allow local connections (IMPORTANT)
+
+In each node:
+
+Open:
+
+pg_hba.conf
+
+Add at bottom:
+
+host all all 127.0.0.1/32 md5
+🔹 STEP 6: Start all 3 servers
+
+Open 3 terminals:
+
+🟢 Start NODE 1
+pg_ctl -D "C:\pgsql\node1\data" -l logfile1 start
+🟢 Start NODE 2
+pg_ctl -D "C:\pgsql\node2\data" -l logfile2 start
+🟢 Start NODE 3
+pg_ctl -D "C:\pgsql\node3\data" -l logfile3 start
+🔹 STEP 7: Verify running servers
+
+Run:
+
+netstat -ano | findstr 5440
+netstat -ano | findstr 5433
+netstat -ano | findstr 5441
+
+If you see LISTENING → SUCCESS ✅
+
+🔹 STEP 8: Connect using psql
+Node1
+psql -p 5440 -U postgres
+Node2
+psql -p 5433 -U postgres
+Node3
+psql -p 5441 -U postgres
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+🔹 STEP 1: Create 3 PostgreSQL databases
+
+Open PostgreSQL (psql or pgAdmin) and run:
+
+CREATE DATABASE portal_db;
+CREATE DATABASE academic_db;
+CREATE DATABASE student_db;
+🔹 STEP 2: Start 3 PostgreSQL servers (if local setup)
+
+If using multiple ports:
+
+Example (Windows service / manual cluster idea):
+Node1 → port 5440
+Node2 → port 5433
+Node3 → port 5441
+
+Update postgresql.conf:
+
+port = 5440   -- Node1
+port = 5433   -- Node2
+port = 5441   -- Node3
+
+Restart services.
+
+🗄️ 3. Create Tables
+🔵 NODE 1 → portal_db
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50),
+    role VARCHAR(20)
+);
+
+CREATE TABLE staff_profiles (
+    id SERIAL PRIMARY KEY,
+    user_id INT,
+    department VARCHAR(50)
+);
+
+CREATE TABLE student_profiles (
+    id SERIAL PRIMARY KEY,
+    user_id INT,
+    branch VARCHAR(50)
+);
+🟢 NODE 2 → academic_db
+CREATE TABLE courses (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100)
+);
+
+CREATE TABLE teacher_courses (
+    id SERIAL PRIMARY KEY,
+    teacher_id INT,
+    course_id INT
+);
+
+CREATE TABLE student_courses (
+    id SERIAL PRIMARY KEY,
+    student_id INT,
+    course_id INT
+);
+🔴 NODE 3 → student_db
+CREATE TABLE exams (
+    id SERIAL PRIMARY KEY,
+    course_id INT,
+    title VARCHAR(100)
+);
+
+CREATE TABLE exam_attempts (
+    id SERIAL PRIMARY KEY,
+    student_id INT,
+    exam_id INT,
+    score INT
+);
+
+CREATE TABLE questions (
+    id SERIAL PRIMARY KEY,
+    exam_id INT,
+    question_text TEXT
+);
+🔌 4. Enable FDW Extension
+
+Run on Node2 and Node3:
+
+CREATE EXTENSION postgres_fdw;
+🔗 5. Connect Nodes using FDW
+🟢 NODE 2 → connect to NODE 1
+CREATE SERVER node1_server
+FOREIGN DATA WRAPPER postgres_fdw
+OPTIONS (host 'localhost', port '5440', dbname 'portal_db');
+User mapping:
+CREATE USER MAPPING FOR postgres
+SERVER node1_server
+OPTIONS (user 'postgres', password 'your_password');
+🟢 Import Node1 tables into Node2
+IMPORT FOREIGN SCHEMA public
+FROM SERVER node1_server
+INTO public;
+
+Now Node2 can access:
+
+users
+staff_profiles
+student_profiles
+🔴 NODE 3 → connect to NODE 2
+CREATE SERVER node2_server
+FOREIGN DATA WRAPPER postgres_fdw
+OPTIONS (host 'localhost', port '5433', dbname 'academic_db');
+CREATE USER MAPPING FOR postgres
+SERVER node2_server
+OPTIONS (user 'postgres', password 'your_password');
+Import tables into Node3:
+IMPORT FOREIGN SCHEMA public
+FROM SERVER node2_server
+INTO public;
